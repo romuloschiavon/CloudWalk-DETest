@@ -31,14 +31,12 @@ def generate_report_dag():
         logical_date = kwargs['logical_date']
         inserter = InsertData(logical_date)
         report_paths = inserter.pivot_report()
-        inserter.close_connection()
         return report_paths
 
     @task
     def create_pvt_table():
         creator = GDPPivotTableCreator()
         creator.create_pivot_table()
-        creator.close_connection()
 
     start_dag = EmptyOperator(
         task_id='start_dag'

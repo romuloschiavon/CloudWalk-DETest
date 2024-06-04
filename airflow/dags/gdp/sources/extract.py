@@ -29,28 +29,30 @@ class GDPDataExtractor:
         
         all_data = []
         
-        while True:
-            response = requests.get(f'{self.base_url}&page={page}&per_page=50')
-            data = response.json()
-            if not data or 'message' in data[0]:
-                self.logging.error(f"Error in response: {data}")
-                break
+        with requests.Session() as session:
+            while True:
+                response = session.get(f'{self.base_url}&page={page}&per_page=50')
+                if response.status_code != 200:
+                    self.logging.error(f"Request failed: {response.status_code}")
+                    break
+                
+                data = response.json()
+                if not data or 'message' in data[0]:
+                    self.logging.error(f"Error in response: {data}")
+                    break
 
-            if 'pages' not in data[0]:
-                self.logging.error(f"Unexpected response format: {data}")
-                break
+                if 'pages' not in data[0]:
+                    self.logging.error(f"Unexpected response format: {data}")
+                    break
 
-            all_data.extend(data[1])
-            self.logging.info(f"Extracted data from page {page}")
-            
-            self.logging.info(data)
-            
-            if page >= data[0]['pages']:
-                break
-            
-            page += 1
+                all_data.extend(data[1])
+                self.logging.info(f"Extracted data from page {page}")
+
+                if page >= data[0]['pages']:
+                    break
+
+                page += 1
           
-        self.logging.info(all_data)  
         with gzip.open(self.filepath, 'wt', encoding='UTF-8') as f:
             json.dump(all_data, f)    
         self.logging.info("Extraction process completed")

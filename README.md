@@ -23,6 +23,7 @@ airflow/
 │ │ │ ├── transform.py # Script to transform extracted GDP data.
 │ ├── utils/
 │ │ ├── logging.py # Utility for initializing logging.
+│ │ ├── database_connection.py # Utility for connecting to the database.
 ├── docker/
 │ ├── Dockerfile # Dockerfile for building the Airflow image.
 │ ├── docker-compose.yaml # Docker Compose file to set up the Airflow environment.
@@ -266,7 +267,7 @@ The design of this project was guided by several key decisions to ensure flexibi
 SQL Script Detachment:
     - An improvement suggestion involves detaching the SQL script for creating the pivoted table into a separate .sql file. This would make the SQL script easily editable and maintainable, allowing for quick modifications without changing the main Python code.
 - Connection Class:
-    - To reduce code duplication and improve maintainability, a dedicated Connection class could be created. This class would handle all database connection operations, ensuring a single source of truth for connection management and making the codebase cleaner.
+    - To reduce code duplication and improve maintainability, a dedicated Connection class has been created. This class handles all database connection operations, ensuring a single source of truth for connection management and making the codebase cleaner.
 - Ease of Modification:
     - The use of classes makes the code more modular and easier to change. This approach also enhances readability, allowing users to quickly understand and modify specific parts of the code as needed.
 - Logging:

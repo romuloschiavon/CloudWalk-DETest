@@ -1,25 +1,17 @@
-import psycopg2
 import os
 import json
 import gzip
 from utils.logging import init_airflow_logging
 from airflow.utils.dates import days_ago
+from utils.database_connection import DatabaseConnection
 
 class InsertData:
     def __init__(self, logical_date=days_ago(0)):
         self.airflow_home = os.getenv('AIRFLOW_HOME', '/opt/airflow')
         self.logical_date = logical_date
         self.logging = init_airflow_logging()
-        self.conn = psycopg2.connect(
-            dbname='airflow',
-            user='airflow',
-            password='airflow',
-            host='postgres'
-        )
-        self.cur = self.conn.cursor()
 
-
-    def insert_pivot_data(self, data):
+    def insert_pivot_data(self, conn, data):
         """Inserts data into the pivot_gdp_report table using batch insertion."""
         self.logging.info('Inserting data into pivot table.')
 
@@ -38,8 +30,9 @@ class InsertData:
             for row in data
         ]
 
-        self.cur.executemany(insert_query, pivot_data)
-        self.conn.commit()
+        with conn.cursor() as cur:
+            cur.executemany(insert_query, pivot_data)
+        conn.commit()
         self.logging.info('Data insertion into pivot table complete.')
 
     def pivot_report(self):
@@ -68,12 +61,13 @@ class InsertData:
             c.id;
         """
 
-        self.cur.execute(query)
-        result = self.cur.fetchall()
+        with DatabaseConnection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(query)
+                result = cur.fetchall()
 
-        data = [dict(zip(["name", "iso3_code", "2019", "2020", "2021", "2022", "2023"], row[1:])) for row in result]
-
-        self.insert_pivot_data(data)
+            data = [dict(zip(["name", "iso3_code", "2019", "2020", "2021", "2022", "2023"], row[1:])) for row in result]
+            self.insert_pivot_data(conn, data)
 
         report_path_csv = os.path.join(self.airflow_home, 'dags', 'gdp', 'reports', 'gdp_pivot_report.csv.gz')
         report_path_json = os.path.join(self.airflow_home, 'dags', 'gdp', 'reports', 'gdp_pivot_report.json.gz')
@@ -89,16 +83,8 @@ class InsertData:
 
         self.logging.info('Pivot report generation complete.')
         return report_path_csv, report_path_json
-    
-    def close_connection(self):
-        self.cur.close()
-        self.conn.close()
-        self.logging.info('Database connection closed.')
 
 if __name__ == "__main__":
     logical_date = days_ago(0)
     inserter = InsertData(logical_date)
-    try:
-        report = inserter.pivot_report()
-    finally:
-        inserter.close_connection()
+    inserter.pivot_report()

@@ -1,15 +1,8 @@
-import psycopg2
 from utils.logging import init_airflow_logging
+from utils.database_connection import DatabaseConnection
 
 class GDPPivotTableCreator:
     def __init__(self):
-        self.conn = psycopg2.connect(
-            dbname='airflow',
-            user='airflow',
-            password='airflow',
-            host='postgres'
-        )
-        self.cur = self.conn.cursor()
         self.logging = init_airflow_logging()
 
     def create_pivot_table(self):
@@ -29,19 +22,16 @@ class GDPPivotTableCreator:
         );
         """
 
-        self.cur.execute(create_table_query)
-        self.conn.commit()
-
-        self.logging.info('Pivot table creation complete.')
-
-    def close_connection(self):
-        self.cur.close()
-        self.conn.close()
-        self.logging.info("Database connection closed")
+        try:
+            with DatabaseConnection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(create_table_query)
+                conn.commit()
+            self.logging.info('Pivot table creation complete.')
+        except Exception as e:
+            self.logging.error(f"Error creating pivot table: {e}")
+            raise
 
 if __name__ == "__main__":
     creator = GDPPivotTableCreator()
-    try:
-        creator.create_pivot_table()
-    finally:
-        creator.close_connection()
+    creator.create_pivot_table()

@@ -9,24 +9,18 @@ class GDPDataTransformer:
         self.airflow_home = os.environ.get('AIRFLOW_HOME', '/opt/airflow/dags')
         self.logging = init_airflow_logging()
         self.logical_date = logical_date
-        self.input_filepath = self.get_filepath(input=True)
-        self.output_filepath = self.get_filepath(input=False)
+        self.input_filepath, self.output_filepath = self.get_filepaths()
         
-
-    def get_filepath(self, input=True):
+    def get_filepaths(self):
         """Constructs the file paths for input and output data."""
         year = self.logical_date.strftime('%Y')
         month = self.logical_date.strftime('%m')
         day = self.logical_date.strftime('%d')
-        if input:
-            dir_path = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', 'bronze', year, month, day)
-            os.makedirs(dir_path, exist_ok=True)
-            return os.path.join(dir_path, 'gdp_data.json.gz')
-        else:
-            dir_path = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', 'silver', year, month, day)
-            os.makedirs(dir_path, exist_ok=True)
-            return os.path.join(dir_path, 'transformed_gdp_data.json.gz')
-    
+        bronze_dir = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', 'bronze', year, month, day)
+        silver_dir = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', 'silver', year, month, day)
+        os.makedirs(bronze_dir, exist_ok=True)
+        os.makedirs(silver_dir, exist_ok=True)
+        return os.path.join(bronze_dir, 'gdp_data.json.gz'), os.path.join(silver_dir, 'transformed_gdp_data.json.gz')
 
     def transform_gdp_data(self):
         """Transforms the extracted GDP data by filtering relevant entries and saving the result as a gzipped JSON file."""
@@ -50,7 +44,7 @@ class GDPDataTransformer:
             json.dump(transformed_data, f)
 
         self.logging.info("Transformation process completed")
-        
+
 if __name__ == "__main__":
     logical_date = days_ago(0)
     transformer = GDPDataTransformer(logical_date)

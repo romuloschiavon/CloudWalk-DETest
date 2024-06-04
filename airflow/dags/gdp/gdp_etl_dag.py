@@ -69,7 +69,6 @@ def gdp_etl_dag():
     def create_tables():
         creator = GDPDataTableCreator()
         creator.create_tables()
-        creator.close_connection()
         
     start_dag = DummyOperator(
         task_id='start_dag'

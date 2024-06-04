@@ -1,15 +1,8 @@
-import psycopg2
 from utils.logging import init_airflow_logging
+from utils.database_connection import DatabaseConnection
 
 class GDPDataTableCreator:
     def __init__(self):
-        self.conn = psycopg2.connect(
-            dbname='airflow',
-            user='airflow',
-            password='airflow',
-            host='postgres'
-        )
-        self.cur = self.conn.cursor()
         self.logging = init_airflow_logging()
 
     def create_tables(self):
@@ -19,7 +12,7 @@ class GDPDataTableCreator:
         CREATE TABLE IF NOT EXISTS country (
             id SERIAL PRIMARY KEY,
             name VARCHAR(255),
-            iso3_code VARCHAR(3)
+            iso3_code VARCHAR(3) UNIQUE
         );
         """
         create_gdp_table = """
@@ -30,19 +23,17 @@ class GDPDataTableCreator:
             value FLOAT
         );
         """
-        self.cur.execute(create_country_table)
-        self.cur.execute(create_gdp_table)
-        self.conn.commit()
-        self.logging.info("Tables created")
-
-    def close_connection(self):
-        self.cur.close()
-        self.conn.close()
-        self.logging.info("Database connection closed")
+        try:
+            with DatabaseConnection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(create_country_table)
+                    cur.execute(create_gdp_table)
+                conn.commit()
+            self.logging.info("Tables created")
+        except Exception as e:
+            self.logging.error(f"Error creating tables: {e}")
+            raise
 
 if __name__ == "__main__":
     creator = GDPDataTableCreator()
-    try:
-        creator.create_tables()
-    finally:
-        creator.close_connection()
+    creator.create_tables()
