@@ -25,13 +25,19 @@ class InsertData:
         insert_query = """
         INSERT INTO pivot_gdp_report (name, iso3_code, "2019", "2020", "2021", "2022", "2023")
         VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT DO NOTHING;
         """
         
-        for row in data:
-            self.cur.execute(insert_query, (
-                row['name'], row['iso3_code'], row['2019'], row['2020'], row['2021'], row['2022'], row['2023']
-            ))
+        pivot_data = [
+            (
+                row['name'], row['iso3_code'],
+                row.get('2019', 0), row.get('2020', 0), row.get('2021', 0),
+                row.get('2022', 0), row.get('2023', 0)
+            )
+            for row in data
+        ]
 
+        self.cur.executemany(insert_query, pivot_data)
         self.conn.commit()
         self.logging.info('Data insertion into pivot table complete.')
 
