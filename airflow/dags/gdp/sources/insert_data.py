@@ -18,14 +18,20 @@ class InsertPivotData:
         """Inserts data into the pivot_gdp_report table using batch insertion."""
         self.logging.info('Inserting data into pivot table.')
 
-        # INsert query for the pivot table
+        # Insert query for the pivot table with a conflict resolution clause
         insert_query = """
         INSERT INTO pivot_gdp_report (name, iso3_code, "2019", "2020", "2021", "2022", "2023")
         VALUES (%s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT DO NOTHING;
+        ON CONFLICT (iso3_code) 
+        DO UPDATE SET 
+            name = EXCLUDED.name,
+            "2019" = EXCLUDED."2019",
+            "2020" = EXCLUDED."2020",
+            "2021" = EXCLUDED."2021",
+            "2022" = EXCLUDED."2022",
+            "2023" = EXCLUDED."2023";
         """
-
-        # Pivot the data
+        # Prepare the data for insertion (Pivot)
         pivot_data = [(row['name'], row['iso3_code'], row.get('2019', 0),
                        row.get('2020', 0), row.get('2021', 0),
                        row.get('2022', 0), row.get('2023', 0)) for row in data]
@@ -60,7 +66,7 @@ class InsertPivotData:
         GROUP BY 
             c.id, c.name, c.iso3_code
         ORDER BY 
-            c.id;
+            c.id DESC;
         """
 
         with DatabaseConnection() as conn:
@@ -73,8 +79,7 @@ class InsertPivotData:
             data = [
                 dict(
                     zip([
-                        "name", "iso3_code", "2019", "2020", "2021", "2022",
-                        "2023"
+                        "name", "iso3_code", "2019", "2020", "2021", "2022", "2023"
                     ], row[1:])) for row in result
             ]
             self.insert_pivot_data(conn, data)

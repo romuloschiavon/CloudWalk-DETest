@@ -13,7 +13,7 @@ class GDPPivotTableCreator:
         CREATE TABLE IF NOT EXISTS pivot_gdp_report (
             id SERIAL PRIMARY KEY,
             name VARCHAR(255),
-            iso3_code CHAR(3),
+            iso3_code CHAR(3) UNIQUE,
             "2019" NUMERIC,
             "2020" NUMERIC,
             "2021" NUMERIC,
