@@ -2,6 +2,7 @@ import os
 import json
 import gzip
 from utils.logging import init_airflow_logging
+from utils.get_file_path import get_report_file_path
 from airflow.utils.dates import days_ago
 from utils.database_connection import DatabaseConnection
 
@@ -12,7 +13,8 @@ class InsertPivotData:
         self.airflow_home = os.getenv('AIRFLOW_HOME', '/opt/airflow')
         self.logical_date = logical_date
         self.logging = init_airflow_logging()
-        self.base_path = os.path.join(self.airflow_home, 'dags', 'reports', 'gdp_etl')
+        self.json_report_path = get_report_file_path(logical_date, self.airflow_home, '', 'gdp', 'json.gz')
+        self.csv_report_path = get_report_file_path(logical_date, self.airflow_home, '', 'gdp', 'csv.gz')
 
     def insert_pivot_data(self, conn, data):
         """Inserts data into the pivot_gdp_report table using batch insertion."""
@@ -84,23 +86,21 @@ class InsertPivotData:
             ]
             self.insert_pivot_data(conn, data)
 
+        data_sorted = sorted(data, key=lambda x: x["name"])
+        del(data)
+        
         # Save the pivot report as a gzipped CSV and gzipped JSON file
-        os.makedirs(self.base_path, exist_ok=True)
-        report_path_csv = os.path.join(self.base_path,
-                                       'gdp_pivot_report.csv.gz')
-        report_path_json = os.path.join(self.base_path,
-                                        'gdp_pivot_report.json.gz')
+        os.makedirs(os.path.dirname(self.json_report_path), exist_ok=True)
 
-        with gzip.open(report_path_csv, 'wt', encoding='UTF-8') as f:
+        with gzip.open(self.csv_report_path, 'wt', encoding='UTF-8') as f:
             f.write("name,iso3_code,2019,2020,2021,2022,2023\n")
-            for row in result:
-                f.write(','.join(map(str, row[1:])) + '\n')
+            for row in data_sorted:
+                f.write(','.join(map(str, [row["name"], row["iso3_code"], row["2019"], row["2020"], row["2021"], row["2022"], row["2023"]])) + '\n')
 
-        with gzip.open(report_path_json, 'wt', encoding='UTF-8') as f:
-            json.dump(data, f)
+        with gzip.open(self.json_report_path, 'wt', encoding='UTF-8') as f:
+            json.dump(data_sorted, f)
 
-        self.logging.info('Pivot report generation complete.')
-        return report_path_csv, report_path_json
+        return self.logging.info('Pivot report generation complete.')
 
 
 if __name__ == "__main__":
