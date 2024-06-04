@@ -19,6 +19,7 @@ class GDPDataLoader:
         self.logging = init_airflow_logging()
 
     def get_filepath(self):
+        """Constructs the file path for loading the transformed data."""
         year = self.logical_date.strftime('%Y')
         month = self.logical_date.strftime('%m')
         day = self.logical_date.strftime('%d')
@@ -27,6 +28,7 @@ class GDPDataLoader:
         return os.path.join(dir_path, 'transformed_gdp_data.json.gz')
     
     def load_gdp_data(self):
+        """Loads transformed GDP data from a gzipped JSON file into the database, ensuring foreign key relationships are maintained."""
         self.logging.info('Starting data load to PostgreSQL.')
         conn = psycopg2.connect(**self.conn_params)
         cur = conn.cursor()

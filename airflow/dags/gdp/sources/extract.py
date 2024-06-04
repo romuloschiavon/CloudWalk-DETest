@@ -14,6 +14,7 @@ class GDPDataExtractor:
         self.logging = init_airflow_logging()
 
     def get_filepath(self):
+        """Constructs the file path for storing the extracted data."""
         year = self.logical_date.strftime('%Y')
         month = self.logical_date.strftime('%m')
         day = self.logical_date.strftime('%d')
@@ -22,6 +23,7 @@ class GDPDataExtractor:
         return os.path.join(dir_path, 'gdp_data.json.gz')
 
     def extract_gdp_data(self):
+        """Extracts GDP data from the World Bank API, processes it, and saves it as a gzipped JSON file."""
         self.logging.info("Initiliazing the extraction process")
         page = 1
         

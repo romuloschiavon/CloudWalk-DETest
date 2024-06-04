@@ -20,6 +20,7 @@ class InsertData:
 
 
     def insert_pivot_data(self, data):
+        """Inserts data into the pivot_gdp_report table using batch insertion."""
         self.logging.info('Inserting data into pivot table.')
 
         insert_query = """
@@ -42,6 +43,7 @@ class InsertData:
         self.logging.info('Data insertion into pivot table complete.')
 
     def pivot_report(self):
+        """Queries the database for pivoted GDP data, inserts the data into the pivot table, and generates CSV and JSON reports."""
         self.logging.info('Starting pivot report generation.')
 
         query = """

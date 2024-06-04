@@ -13,6 +13,7 @@ class GDPDataTableCreator:
         self.logging = init_airflow_logging()
 
     def create_tables(self):
+        """Creates the country and gdp tables in the database if they do not exist."""
         self.logging.info("Checking and creating tables if they do not exist")
         create_country_table = """
         CREATE TABLE IF NOT EXISTS country (

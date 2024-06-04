@@ -13,6 +13,7 @@ class GDPPivotTableCreator:
         self.logging = init_airflow_logging()
 
     def create_pivot_table(self):
+        """Creates the pivot_gdp_report table in the database if it does not exist."""
         self.logging.info('Creating pivot table in PostgreSQL.')
 
         create_table_query = """

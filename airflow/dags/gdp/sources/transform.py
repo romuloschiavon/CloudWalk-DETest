@@ -14,6 +14,7 @@ class GDPDataTransformer:
         
 
     def get_filepath(self, input=True):
+        """Constructs the file paths for input and output data."""
         year = self.logical_date.strftime('%Y')
         month = self.logical_date.strftime('%m')
         day = self.logical_date.strftime('%d')
@@ -28,6 +29,7 @@ class GDPDataTransformer:
     
 
     def transform_gdp_data(self):
+        """Transforms the extracted GDP data by filtering relevant entries and saving the result as a gzipped JSON file."""
         self.logging.info("Initializing the transformation process")
 
         with gzip.open(self.input_filepath, 'rt', encoding='UTF-8') as f:
