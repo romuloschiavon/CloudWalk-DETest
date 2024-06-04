@@ -33,9 +33,17 @@ airflow/
 ├── logs/ # Directory for Airflow logs.
 ├── plugins/ # Directory for Airflow plugins.
 ```
+## Cloning repository
+To get started, you need to clone the repository to your local machine. Use the following command:
+```bash
+git clone https://github.com/romuloschiavon/CloudWalk-DETest.git
+```
+Navigate to the project directory:
+```bash
+cd CloudWalk-DETest
+```
 
-
-## Running Airflow
+## Set Up Airflow
 To reach as many users as possible, you can use either `make` or `Docker` commands directly in the terminal (a.k.a bash) to run Airflow and the Data Engineer assessment.
 
 Feel free to choose the method you are most comfortable with.
