@@ -1,6 +1,7 @@
 import psycopg2
 import json
 import os
+import gzip
 from utils.logging import init_airflow_logging
 from airflow.utils.dates import days_ago
 
@@ -21,24 +22,26 @@ class GDPDataLoader:
         year = self.logical_date.strftime('%Y')
         month = self.logical_date.strftime('%m')
         day = self.logical_date.strftime('%d')
-        dir_path = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', year, month, day)
+        dir_path = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', 'silver', year, month, day)
         os.makedirs(dir_path, exist_ok=True)
-        return os.path.join(dir_path, 'transformed_gdp_data.json')
+        return os.path.join(dir_path, 'transformed_gdp_data.json.gz')
     
     def load_gdp_data(self):
         self.logging.info('Starting data load to PostgreSQL.')
         conn = psycopg2.connect(**self.conn_params)
         cur = conn.cursor()
 
-        with open(self.filepath, 'r') as f:
+        with gzip.open(self.filepath, 'rt', encoding='UTF-8') as f:
             data = json.load(f)
+            
+        self.logging.info(data)
 
         countries = {}
         for record in data:
-            country_name = record['country_name']
-            iso3_code = record['iso3_code']
-            year = record['year']
-            value = record['value']
+            country_name = record['country']
+            iso3_code = record['country_code']
+            year = record['date']
+            value = record['gdp']
 
             if iso3_code not in countries:
                 cur.execute(
