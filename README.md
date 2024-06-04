@@ -143,11 +143,16 @@ If you are running the pipeline for the first time or if you want to reset the d
 This DAG will drop any existing tables related to the GDP data to ensure a clean slate for your data extraction process.
 
 ### Running the ETL Process
-For this data pipeline I ensured that the data of the report could be refreshed at any given time. Sometimes business teams need more than one run per day, so the `generate_report` dag is automatically triggered when the `gdp_etl_dag` succeeds, but also doesn't require the full pipeline to ensure the data is as fresh as possible.
+To ensure that the report data can be refreshed at any time, the `generate_report` DAG is automatically triggered when the `gdp_etl_dag` succeeds. This allows for multiple runs per day if needed by business teams, without requiring the entire pipeline to be rerun to keep the data as fresh as possible.
 
-Ensure that the `generate_report` DAG is turned ON before running the `gdp_etl_dag` (it will not run automatically!)
+### Important Step
+Before running the `gdp_etl_dag`, make sure the `generate_report` DAG is turned ON. It will not run automatically unless it is activated.
 
-#### Start the gdp_etl_dag:
+Switch it to the "ON" position!!!
+
+Once the `generate_report` DAG is activated, you can proceed to run the `gdp_etl_dag`, and you should have your data extracted, transformed, loaded and pivoted into a easily queriable table.
+
+#### GDP_ETL_DAG details:
 The gdp_etl_dag DAG consists of several tasks
 
 Create Data Folder:
@@ -255,3 +260,5 @@ SQL Script Detachment:
     - Logging is implemented throughout the ETL process to provide transparency and ease of debugging. Each class initializes logging to track the progress and status of operations, ensuring that any issues can be quickly identified and resolved.
 - Querying Multiple Countries:
     - Since the assessment included all the countries in the format `ARG;BOL;BRA;CHL;COL;ECU;GUY;PRY;PER;SUR;URY;VEN`, it was decided to query all countries in a single request rather than querying each one individually. Although querying each country individually might be faster, it would require more queries to the database, which could be less efficient as databases generally do not handle excessive requests well.
+- Bronze/Silver Directory Structure:
+    - A bronze/silver directory structure was created, organized by year, month, and day, to better understand which day the pipeline was run. This structure helps in managing the data lifecycle and ensures traceability of data processing stages.
