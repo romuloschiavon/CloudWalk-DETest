@@ -163,3 +163,4 @@ cython_debug/
 
 /airflow/dags/gdp/data/
 /airflow/dags/gdp/reports/
+/airflow/logs/
