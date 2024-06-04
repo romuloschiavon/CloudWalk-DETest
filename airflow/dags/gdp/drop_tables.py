@@ -20,6 +20,7 @@ def drop_tables():
     logging.info("Dropping gdp and country tables if they exist")
     cur.execute("DROP TABLE IF EXISTS gdp CASCADE;")
     cur.execute("DROP TABLE IF EXISTS country CASCADE;")
+    cur.execute("DROP TABLE IF EXISTS pivot_gdp_report CASCADE;")
     conn.commit()
     cur.close()
     conn.close()
