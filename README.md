@@ -277,3 +277,7 @@ The design of this project was guided by several key decisions to ensure flexibi
     the data lifecycle and ensures traceability of data processing stages.
 - Sepatared ETL and report pipeline
     - Separating the report pipeline into two DAGs enhances modularity, scalability, and error handling, aligning with best practices in BI and data companies. This allows for independent development, flexible scheduling, and improved resilience.
+
+## Further Developments
+- Implement connection in Airflow Connections
+    - Hard coding connections is not optimal. Airflow connections should be used for more security.
