@@ -1,10 +1,10 @@
 from airflow import DAG
 from airflow.decorators import task, dag
-from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.operators.bash import BashOperator
 from airflow.utils.dates import days_ago
-from gdp.sources.create_tables import GDPDataTableCreator
+from gdp.sources.create_gdp_table import GDPDataTableCreator
 from gdp.sources.extract import GDPDataExtractor
 from gdp.sources.transform import GDPDataTransformer
 from gdp.sources.load import GDPDataLoader
@@ -77,13 +77,18 @@ def gdp_etl_dag():
     
     create_data_folder = BashOperator(
         task_id='create_data_folder',
-        bash_command='mkdir -p ./data',
+        bash_command='mkdir -p ./reports',
     )
     
     end_dag = DummyOperator(
         task_id="end_dag"
     )
     
-    start_dag >> create_data_folder >> create_tables() >> extract_data() >> transform_data() >> load_data() >> end_dag
+    trigger_generate_report = TriggerDagRunOperator(
+        task_id='trigger_generate_report',
+        trigger_dag_id='generate_report_dag'
+    )
+    
+    start_dag >> create_data_folder >> create_tables() >> extract_data() >> transform_data() >> load_data() >> trigger_generate_report >> end_dag
 
 dag = gdp_etl_dag()
