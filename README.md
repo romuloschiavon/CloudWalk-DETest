@@ -47,7 +47,9 @@ cd airflow/docker
 
 Note: I chose to use Redis because CeleryExecutor has significantly more capabilities than LocalExecutor.
 
-### Using Docker Commands
+<details>
+<summary>Using Docker Commands</summary>
+
 #### Building
 To build the Airflow network, Airflow, PostgreSQL, and Redis containers, run:
 ```bash
@@ -83,9 +85,11 @@ If you are running in detached mode and want to view the Docker logs, run:
 docker-compose logs -f
 ```
 
----
+</details>
 
-### Using Make
+<details>
+<summary>Using Make</summary>
+
 #### Building
 To build the Airflow network, Airflow, PostgreSQL, and Redis containers, run:
 ```bash
@@ -119,6 +123,9 @@ If you are running in detached mode and want to view the Docker logs, run:
 ```bash
 make logs
 ```
+
+</details>
+Please only choose one.
 
 ## Pipeline Extraction
 Now your container is up and running and you can run the data extraction using Airflow. [You can access it clicking here](http://localhost:8080) or navigating to http://localhost:8080 in your browser.
