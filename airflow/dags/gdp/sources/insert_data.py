@@ -18,16 +18,19 @@ class InsertPivotData:
         """Inserts data into the pivot_gdp_report table using batch insertion."""
         self.logging.info('Inserting data into pivot table.')
 
+        # INsert query for the pivot table
         insert_query = """
         INSERT INTO pivot_gdp_report (name, iso3_code, "2019", "2020", "2021", "2022", "2023")
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT DO NOTHING;
         """
 
+        # Pivot the data
         pivot_data = [(row['name'], row['iso3_code'], row.get('2019', 0),
                        row.get('2020', 0), row.get('2021', 0),
                        row.get('2022', 0), row.get('2023', 0)) for row in data]
 
+        # Insert the data into the pivot table, using executemany for batch insertion
         with conn.cursor() as cur:
             cur.executemany(insert_query, pivot_data)
         conn.commit()
@@ -37,6 +40,7 @@ class InsertPivotData:
         """Queries the database for pivoted GDP data, inserts the data into the pivot table, and generates CSV and JSON reports."""
         self.logging.info('Starting pivot report generation.')
 
+        # Query to pivot the GDP data
         query = """
         SELECT 
             c.id,
@@ -60,10 +64,12 @@ class InsertPivotData:
         """
 
         with DatabaseConnection() as conn:
+            # Execute the query and fetch the results
             with conn.cursor() as cur:
                 cur.execute(query)
                 result = cur.fetchall()
 
+            # Prepare the data for insertion into the pivot table
             data = [
                 dict(
                     zip([
@@ -73,6 +79,7 @@ class InsertPivotData:
             ]
             self.insert_pivot_data(conn, data)
 
+        # Save the pivot report as a gzipped CSV and gzipped JSON file
         os.makedirs(self.base_path, exist_ok=True)
         report_path_csv = os.path.join(self.base_path,
                                        'gdp_pivot_report.csv.gz')

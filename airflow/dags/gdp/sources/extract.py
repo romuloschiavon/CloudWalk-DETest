@@ -21,18 +21,22 @@ class GDPDataExtractor:
         
         all_data = []
         
+        # Run in a single request session, optimizing the connection
         with requests.Session() as session:
             while True:
+                # Make a request to the World Bank API
                 response = session.get(f'{self.base_url}&page={page}&per_page=50')
                 if response.status_code != 200:
                     self.logging.error(f"Request failed: {response.status_code}")
                     break
                 
+                # Extract the JSON data from the response
                 data = response.json()
                 if not data or 'message' in data[0]:
                     self.logging.error(f"Error in response: {data}")
                     break
-
+                
+                # Check if the response contains the expected data
                 if 'pages' not in data[0]:
                     self.logging.error(f"Unexpected response format: {data}")
                     break
@@ -40,11 +44,13 @@ class GDPDataExtractor:
                 all_data.extend(data[1])
                 self.logging.info(f"Extracted data from page {page}")
 
+                # Break the loop if all pages have been processed
                 if page >= data[0]['pages']:
                     break
 
                 page += 1
-          
+        
+        # Save the extracted data to a gzipped JSON file
         with gzip.open(self.filepath, 'wt', encoding='UTF-8') as f:
             json.dump(all_data, f)    
         self.logging.info("Extraction process completed")

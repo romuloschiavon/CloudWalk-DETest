@@ -4,26 +4,22 @@ from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
 import psycopg2
 from utils.logging import init_airflow_logging
+from utils.database_connection import DatabaseConnection
 
 # Initialize logging
 logging = init_airflow_logging()
 
 def drop_tables():
     logging.info("Connecting to the database")
-    conn = psycopg2.connect(
-        dbname='airflow',
-        user='airflow',
-        password='airflow',
-        host='postgres'
-    )
-    cur = conn.cursor()
-    logging.info("Dropping gdp and country tables if they exist")
-    cur.execute("DROP TABLE IF EXISTS gdp CASCADE;")
-    cur.execute("DROP TABLE IF EXISTS country CASCADE;")
-    cur.execute("DROP TABLE IF EXISTS pivot_gdp_report CASCADE;")
-    conn.commit()
-    cur.close()
-    conn.close()
+    
+    with DatabaseConnection() as conn:
+        cur = conn.cursor()
+        logging.info("Dropping gdp and country tables if they exist")
+        cur.execute("DROP TABLE IF EXISTS gdp CASCADE;")
+        cur.execute("DROP TABLE IF EXISTS country CASCADE;")
+        cur.execute("DROP TABLE IF EXISTS pivot_gdp_report CASCADE;")
+        conn.commit()
+
     logging.info("Tables dropped successfully")
 
 default_args = {
