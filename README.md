@@ -24,6 +24,9 @@ airflow/
 │ ├── utils/
 │ │ ├── logging.py # Utility for initializing logging.
 │ │ ├── database_connection.py # Utility for connecting to the database.
+│ │ ├── get_file_path.py # Utility for file path creation.
+│ ├── data/ # All the extracted data will be extracted to a folder structure here
+│ ├── reports/ # The reports will be available here in .json.gz and .csv.gz
 ├── docker/
 │ ├── Dockerfile # Dockerfile for building the Airflow image.
 │ ├── docker-compose.yaml # Docker Compose file to set up the Airflow environment.
