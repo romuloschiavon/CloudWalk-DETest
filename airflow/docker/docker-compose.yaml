@@ -1,0 +1,75 @@
+services:
+  postgres:
+    hostname: airflow_database
+    container_name: airflow_database
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    networks:
+      - airflow_network
+
+  redis:
+    hostname: airflow_redis
+    container_name: airflow_redis
+    image: redis:latest
+    networks:
+      - airflow_network
+
+  airflow_webserver:
+    hostname: airflow_webserver
+    container_name: airflow_webserver
+    build: .
+    command: webserver
+    env_file:
+      - variables.env
+    volumes:
+      - ../dags:/opt/airflow/dags
+      - ../logs:/opt/airflow/logs
+      - ../plugins:/opt/airflow/plugins
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - airflow_network
+
+  airflow_scheduler:
+    hostname: airflow_scheduler
+    container_name: airflow_scheduler
+    build: .
+    command: scheduler
+    env_file:
+      - variables.env
+    volumes:
+      - ../dags:/opt/airflow/dags
+      - ../logs:/opt/airflow/logs
+      - ../plugins:/opt/airflow/plugins
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - airflow_network
+
+  airflow_worker:
+    hostname: airflow_worker
+    container_name: airflow_worker
+    build: .
+    command: celery worker
+    env_file:
+      - variables.env
+    volumes:
+      - ../dags:/opt/airflow/dags
+      - ../logs:/opt/airflow/logs
+      - ../plugins:/opt/airflow/plugins
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - airflow_network
+
+networks:
+  airflow_network:
+    driver: bridge
