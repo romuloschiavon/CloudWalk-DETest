@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: airflow
     networks:
       - airflow_network
+    ports:
+      - 5432:5432
 
   redis:
     hostname: airflow_redis
