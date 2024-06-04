@@ -2,6 +2,7 @@ import json
 import gzip
 import os
 from utils.logging import init_airflow_logging
+from utils.get_file_path import get_file_path
 from airflow.utils.dates import days_ago
 
 class GDPDataTransformer:
@@ -9,18 +10,8 @@ class GDPDataTransformer:
         self.airflow_home = os.environ.get('AIRFLOW_HOME', '/opt/airflow/dags')
         self.logging = init_airflow_logging()
         self.logical_date = logical_date
-        self.input_filepath, self.output_filepath = self.get_filepaths()
-        
-    def get_filepaths(self):
-        """Constructs the file paths for input and output data."""
-        year = self.logical_date.strftime('%Y')
-        month = self.logical_date.strftime('%m')
-        day = self.logical_date.strftime('%d')
-        bronze_dir = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', 'bronze', year, month, day)
-        silver_dir = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', 'silver', year, month, day)
-        os.makedirs(bronze_dir, exist_ok=True)
-        os.makedirs(silver_dir, exist_ok=True)
-        return os.path.join(bronze_dir, 'gdp_data.json.gz'), os.path.join(silver_dir, 'transformed_gdp_data.json.gz')
+        self.input_filepath = get_file_path(self.logical_date, self.airflow_home, 'bronze', 'gdp_etl')
+        self.output_filepath = get_file_path(self.logical_date, self.airflow_home, 'silver', 'gdp_etl')
 
     def transform_gdp_data(self):
         """Transforms the extracted GDP data by filtering relevant entries and saving the result as a gzipped JSON file."""

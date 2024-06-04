@@ -2,6 +2,7 @@ import os
 import json
 import gzip
 from utils.logging import init_airflow_logging
+from utils.get_file_path import get_file_path
 from airflow.utils.dates import days_ago
 from utils.database_connection import DatabaseConnection
 
@@ -9,17 +10,8 @@ class GDPDataLoader:
     def __init__(self, logical_date=days_ago(0)):
         self.airflow_home = os.getenv('AIRFLOW_HOME', '/opt/airflow')
         self.logical_date = logical_date
-        self.filepath = self.get_filepath()
+        self.filepath = get_file_path(self.logical_date, self.airflow_home, 'silver', 'gdp_etl')
         self.logging = init_airflow_logging()
-
-    def get_filepath(self):
-        """Constructs the file path for loading the transformed data."""
-        year = self.logical_date.strftime('%Y')
-        month = self.logical_date.strftime('%m')
-        day = self.logical_date.strftime('%d')
-        dir_path = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', 'silver', year, month, day)
-        os.makedirs(dir_path, exist_ok=True)
-        return os.path.join(dir_path, 'transformed_gdp_data.json.gz')
     
     def load_gdp_data(self):
         """Loads transformed GDP data from a gzipped JSON file into the database, ensuring foreign key relationships are maintained."""

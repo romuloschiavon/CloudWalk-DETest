@@ -264,8 +264,6 @@ The design of this project was guided by several key decisions to ensure flexibi
     - Since the assessment did not specify how the pivoted table should be accessed, a range of access methods were provided. This includes SQL queries for direct access by SQL users and the generation of reports in both JSON and CSV formats, making the data available via different endpoints.
 - Class Orientation: 
     - Classes were used instead of a purely object-oriented approach to enhance code reuse and modularity. This decision was based on the likelihood of code reuse in different parts of the project and to maintain a clean, organized structure.
-SQL Script Detachment:
-    - An improvement suggestion involves detaching the SQL script for creating the pivoted table into a separate .sql file. This would make the SQL script easily editable and maintainable, allowing for quick modifications without changing the main Python code.
 - Connection Class:
     - To reduce code duplication and improve maintainability, a dedicated Connection class has been created. This class handles all database connection operations, ensuring a single source of truth for connection management and making the codebase cleaner.
 - Ease of Modification:
@@ -277,3 +275,5 @@ SQL Script Detachment:
 - Bronze/Silver Directory Structure:
     - A bronze/silver directory structure was created, organized by year, month, and day, to better understand which day the pipeline was run. This structure helps in managing 
     the data lifecycle and ensures traceability of data processing stages.
+- Sepatared ETL and report pipeline
+    - Separating the report pipeline into two DAGs enhances modularity, scalability, and error handling, aligning with best practices in BI and data companies. This allows for independent development, flexible scheduling, and improved resilience.

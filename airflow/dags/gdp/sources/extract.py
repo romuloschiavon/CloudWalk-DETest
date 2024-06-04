@@ -3,6 +3,7 @@ import json
 import os
 import gzip
 from utils.logging import init_airflow_logging
+from utils.get_file_path import get_file_path
 from airflow.utils.dates import days_ago
 
 class GDPDataExtractor:
@@ -10,17 +11,8 @@ class GDPDataExtractor:
         self.airflow_home = os.getenv('AIRFLOW_HOME', '/opt/airflow')
         self.base_url = 'https://api.worldbank.org/v2/country/ARG;BOL;BRA;CHL;COL;ECU;GUY;PRY;PER;SUR;URY;VEN/indicator/NY.GDP.MKTP.CD?format=json'
         self.logical_date = logical_date
-        self.filepath = self.get_filepath()
+        self.filepath = get_file_path(self.logical_date, self.airflow_home, 'bronze', 'gdp_etl')
         self.logging = init_airflow_logging()
-
-    def get_filepath(self):
-        """Constructs the file path for storing the extracted data."""
-        year = self.logical_date.strftime('%Y')
-        month = self.logical_date.strftime('%m')
-        day = self.logical_date.strftime('%d')
-        dir_path = os.path.join(self.airflow_home, 'dags', 'gdp', 'data', 'bronze', year, month, day, )
-        os.makedirs(dir_path, exist_ok=True)
-        return os.path.join(dir_path, 'gdp_data.json.gz')
 
     def extract_gdp_data(self):
         """Extracts GDP data from the World Bank API, processes it, and saves it as a gzipped JSON file."""
