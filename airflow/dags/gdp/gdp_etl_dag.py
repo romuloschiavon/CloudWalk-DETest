@@ -74,11 +74,6 @@ def gdp_etl_dag():
         task_id='start_dag'
     )
     
-    create_data_folder = BashOperator(
-        task_id='create_data_folder',
-        bash_command='mkdir -p ./reports',
-    )
-    
     end_dag = DummyOperator(
         task_id="end_dag"
     )
@@ -88,6 +83,6 @@ def gdp_etl_dag():
         trigger_dag_id='generate_report_dag'
     )
     
-    start_dag >> create_data_folder >> create_tables() >> extract_data() >> transform_data() >> load_data() >> trigger_generate_report >> end_dag
+    start_dag  >> create_tables() >> extract_data() >> transform_data() >> load_data() >> trigger_generate_report >> end_dag
 
 dag = gdp_etl_dag()

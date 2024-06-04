@@ -1,9 +1,8 @@
 from airflow.decorators import task, dag
 from airflow.operators.empty import EmptyOperator
-from airflow.operators.bash import BashOperator
 from airflow.utils.dates import days_ago
 from gdp.sources.create_pivot_table import GDPPivotTableCreator
-from gdp.sources.insert_data import InsertData 
+from gdp.sources.insert_data import InsertPivotData 
 from datetime import timedelta
 
 default_args = {
@@ -29,7 +28,7 @@ def generate_report_dag():
     @task
     def generate_report(**kwargs):
         logical_date = kwargs['logical_date']
-        inserter = InsertData(logical_date)
+        inserter = InsertPivotData(logical_date)
         report_paths = inserter.pivot_report()
         return report_paths
 
@@ -42,15 +41,10 @@ def generate_report_dag():
         task_id='start_dag'
     )
     
-    create_reports_folder = BashOperator(
-        task_id='create_reports_folder',
-        bash_command='mkdir -p ./data',
-    )
-    
     end_dag = EmptyOperator(
         task_id="end_dag"
     )
 
-    start_dag >> create_reports_folder >> create_pvt_table() >> generate_report() >> end_dag
+    start_dag >> create_pvt_table() >> generate_report() >> end_dag
 
 report_dag = generate_report_dag()

@@ -161,6 +161,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# Ignore logs, plugins, and other local files
+/airflow/plugins/
 /airflow/dags/gdp/data/
 /airflow/dags/gdp/reports/
 /airflow/logs/
+/airflow/dags/data/
+/airflow/dags/reports/

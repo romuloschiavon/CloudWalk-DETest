@@ -6,13 +6,13 @@ from airflow.utils.dates import days_ago
 from utils.database_connection import DatabaseConnection
 
 
-class InsertData:
+class InsertPivotData:
 
     def __init__(self, logical_date=days_ago(0)):
         self.airflow_home = os.getenv('AIRFLOW_HOME', '/opt/airflow')
         self.logical_date = logical_date
         self.logging = init_airflow_logging()
-        self.base_path = os.path.join(self.airflow_home, 'reports', 'gdp_etl')
+        self.base_path = os.path.join(self.airflow_home, 'dags', 'reports', 'gdp_etl')
 
     def insert_pivot_data(self, conn, data):
         """Inserts data into the pivot_gdp_report table using batch insertion."""
@@ -73,11 +73,11 @@ class InsertData:
             ]
             self.insert_pivot_data(conn, data)
 
+        os.makedirs(self.base_path, exist_ok=True)
         report_path_csv = os.path.join(self.base_path,
                                        'gdp_pivot_report.csv.gz')
         report_path_json = os.path.join(self.base_path,
                                         'gdp_pivot_report.json.gz')
-        os.makedirs(os.path.dirname(report_path_csv), exist_ok=True)
 
         with gzip.open(report_path_csv, 'wt', encoding='UTF-8') as f:
             f.write("name,iso3_code,2019,2020,2021,2022,2023\n")
@@ -93,5 +93,5 @@ class InsertData:
 
 if __name__ == "__main__":
     logical_date = days_ago(0)
-    inserter = InsertData(logical_date)
+    inserter = InsertPivotData(logical_date)
     inserter.pivot_report()
