@@ -195,6 +195,11 @@ SELECT * FROM pivot_gdp_report;
 
 This query retrieves all columns and rows from the `pivot_gdp_report` table, which contains the GDP data pivoted over the last 5 years.
 
+### Important note
+**Venezuela Data Exclusion:** Venezuela is not shown in the results because it does not have public GDP data available since 2014 in the World Bank API. This decision ensures the accuracy and relevance of the data presented in the reports.
+
+**2023 with null values:** Since the World Bank API doesn't have the data for 2023, all values are expeceted to be 0.
+
 ### Example Output
 
 The output of the query will look like this:
@@ -269,4 +274,5 @@ SQL Script Detachment:
 - Querying Multiple Countries:
     - Since the assessment included all the countries in the format `ARG;BOL;BRA;CHL;COL;ECU;GUY;PRY;PER;SUR;URY;VEN`, it was decided to query all countries in a single request rather than querying each one individually. Although querying each country individually might be faster, it would require more queries to the database, which could be less efficient as databases generally do not handle excessive requests well.
 - Bronze/Silver Directory Structure:
-    - A bronze/silver directory structure was created, organized by year, month, and day, to better understand which day the pipeline was run. This structure helps in managing the data lifecycle and ensures traceability of data processing stages.
+    - A bronze/silver directory structure was created, organized by year, month, and day, to better understand which day the pipeline was run. This structure helps in managing 
+    the data lifecycle and ensures traceability of data processing stages.
