@@ -233,7 +233,7 @@ If you are using `psql`, the PostgreSQL command-line interface, you can run the 
 
 1. Open your terminal.
 2. Connect to your PostgreSQL database:
-   `psql -h postgres -U airflow -d airflow`
+   `psql -h postgres -U airflow -d airflow -h localhost`
 3. Enter your password when prompted.
 4. Run the query:
    `SELECT * FROM pivot_gdp_report;`
